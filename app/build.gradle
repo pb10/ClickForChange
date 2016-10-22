@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "com.example.poornima.clickforchange"
+        minSdkVersion 11
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+ext {
+    supportLibVersion = '24.2.0'  // variable that can be referenced to keep support libs consistent
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile "com.android.support:appcompat-v7:${supportLibVersion}"
+    compile "com.android.support:design:${supportLibVersion}"
+    //compile 'com.google.android.gms:play-services:6.5.87'
+    compile 'com.google.android.gms:play-services:6.5.87'
+    // CardView
+    compile "com.android.support:cardview-v7:${supportLibVersion}"
+    compile 'com.roughike:bottom-bar:1.3.3'
+    compile 'com.android.support:multidex:1.0.0'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile files('libs/CircleImageView-master/gradle/wrapper/gradle-wrapper.jar')
+}
