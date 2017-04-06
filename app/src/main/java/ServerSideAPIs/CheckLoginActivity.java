@@ -4,6 +4,7 @@ package ServerSideAPIs;
  * Created by poornima on 9/9/16.
  */
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -25,19 +26,26 @@ public class CheckLoginActivity extends AsyncTask<String,Void,String> {
     private Context context;
     private TextView statusField;
     private String statusText;
+    private ProgressDialog dialog;
 
     //flag 0 means get and 1 means post.(By default it is get.)
     public CheckLoginActivity(Context context, TextView statusField) {
 
         this.context = context;
         this.statusField = statusField;
+        dialog = new ProgressDialog(context);
 
         /*this.roleField = roleField;*/
     }
 
-    protected void onPreExecute(){
+    protected void onPreExecute() {
 
+        this.dialog.setMessage("Logging In..");
+        this.dialog.setCancelable(false);
+        this.dialog.show();
     }
+
+
 
     @Override
     protected String doInBackground(String... params) {
@@ -92,7 +100,6 @@ public class CheckLoginActivity extends AsyncTask<String,Void,String> {
     protected void onPostExecute(String result){
         Communication l =  (Communication)context;
         l.onCompletion(result);
-
     }
 
 

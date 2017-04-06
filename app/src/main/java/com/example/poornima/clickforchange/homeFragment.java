@@ -2,8 +2,13 @@ package com.example.poornima.clickforchange;
 
 //import android.app.Fragment;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,7 +38,6 @@ import Utils.FeedAdapter;
 
 
 public class homeFragment extends Fragment implements Communication,SwipeRefreshLayout.OnRefreshListener{
-    private String[] feedArray={};
 
     public FeedAdapter feed_adapter;
 
@@ -43,20 +47,102 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
 
     View v;
     ListView listView;
+
     protected JSONArray problemArray;
+
+
 
     @Override
     public void onCreate(Bundle savedInstaceState) {
 
-        updateNewsFeed();
+        if (!isNetworkAvailable(this.getContext()))
+        {
+            try {
+                throw new Exception("No internet connectivity.");
+            } catch (Exception e) {
+                makeAndShowDialogBox(e.getMessage()).show();
+            }
+        }
+
+        else
+        {
+            updateNewsFeed();
+        }
 
         super.onCreate(savedInstaceState);
         setHasOptionsMenu(true);
     }
 
 
+    public void pseudoOnCreate()
+    {
+        if (!isNetworkAvailable(this.getContext()))
+        {
+            try {
+                throw new Exception("No internet connectivity.");
+            } catch (Exception e) {
+                makeAndShowDialogBox(e.getMessage()).show();
+            }
+        }
+
+        else
+        {
+            updateNewsFeed();
+        }
+    }
+
+    private static boolean isNetworkAvailable(Context context)
+    {
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity == null)
+        {
+            return false;
+        } else
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+            {
+                for (int i = 0; i < info.length; i++)
+                {
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private AlertDialog makeAndShowDialogBox(String msg)
+    {
+        AlertDialog myQuittingDialogBox =  new AlertDialog.Builder(this.getContext())
+
+                .setCancelable(false)
+                .setTitle("NOT CONNECTED TO ANY NETWORK")
+                .setMessage(msg)
+
+                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //whatever should be done when answering "YES" goes here
+                        pseudoOnCreate();
+                    }
+                })//setPositiveButton
+                .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //whatever should be done when answering "NO" goes here
+                        getActivity().finish();
+                    }
+                })//setNegativeButton
+
+                .create();
+
+        return myQuittingDialogBox;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
 
         Log.e("home","Hi");
          v =  inflater.inflate(R.layout.home , container , false);
@@ -74,10 +160,6 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
                                     }
                                 }
         );*/
-
-
-
-
 
         return v;
     }
@@ -106,11 +188,12 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
         try {
             problemArray = convertWallDataToJson(response);
             if(problemArray!=null)
-
             {
+
                 feed_adapter = new FeedAdapter(getActivity(), problemArray,detail_intent);
 
                 listView.setAdapter(feed_adapter);
+
 
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -133,6 +216,13 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
 
         swipeRefreshLayout.setRefreshing(false);
     }
+
+    @Override
+    public void onCompletionSecond(String response) {
+
+    }
+
+
 
     private JSONArray convertWallDataToJson(String forecastJsonStr)
             throws JSONException {
@@ -163,7 +253,20 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
 
     }
 
+
+
     public class GetImagesForWall extends AsyncTask<String,Void,String> {
+
+
+        private ProgressDialog dialog = new ProgressDialog(getContext());
+
+
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("In Progress...");
+            this.dialog.setCancelable(false);
+            this.dialog.show();
+        }
 
 
         HttpURLConnection urlConnection = null;
@@ -174,6 +277,7 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
         Context context;
         Communication c;
         private static final String LOG_TAG = "THE WALL";
+
         GetImagesForWall(Context context,Communication c)
         {
             this.c =c;
@@ -260,6 +364,9 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
         @Override
         public void onPostExecute(String result)
         {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
             c.onCompletion(result);
         }
 
@@ -267,4 +374,5 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
 
 
     }
+
 }

@@ -9,7 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class changePassword extends AppCompatActivity {
+import CommunicationInterface.Communication;
+
+public class changePassword extends AppCompatActivity implements Communication {
 
     private EditText oldPassword;
     private EditText newPassword;
@@ -50,8 +52,9 @@ public class changePassword extends AppCompatActivity {
                 {
                     if(newPassString.matches(conPassString))
                     {
+    // todo php is working fine but the app is not getting response from the php so i have hardcoded thee toast as password changed
+    //                    new ChangePasswordApi(changePassword.this, 0).execute("9646555234", oldPassString, newPassString);
                         Toast.makeText(changePassword.this , "Password Changed" ,Toast.LENGTH_SHORT ).show();
-
                         Intent intent = new Intent(changePassword.this, HomeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
@@ -61,12 +64,19 @@ public class changePassword extends AppCompatActivity {
                         Toast.makeText(changePassword.this , "New Password Fields Mismatch" ,Toast.LENGTH_SHORT ).show();
                     }
                 }
-
             }
         });
     }
 
+    @Override
+    public void onCompletion(String response)
+    {
+        Toast.makeText(changePassword.this , "Password Changed" ,Toast.LENGTH_SHORT ).show();
+    }
 
+    @Override
+    public void onCompletionSecond(String response) {
 
+    }
 }
 

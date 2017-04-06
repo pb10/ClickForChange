@@ -4,94 +4,134 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class editProfile extends AppCompatActivity {
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import CommunicationInterface.Communication;
+import ServerSideAPIs.UpdateProfileData;
+import ServerSideAPIs.GetProfileData;
+
+public class editProfile extends AppCompatActivity implements Communication {
+
+    private static final String LOG_TAG = "EDIT PROFILE";
+    private static final String NAME = "name";
+    private static final String EMAIL = "email";
+    private static final String ADDRESS = "address";
+    String NAMESTRING;
+    String EMAILSTRING;
+    String ADDRESSSTRING;
     private Animator mCurrentAnimator;
-
-    // The system "short" animation time duration, in milliseconds. This
-    // duration is ideal for subtle animations or animations that occur
-    // very frequently.
     private int mShortAnimationDuration;
+
+    public String requestId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
-
         getSupportActionBar().setTitle("Edit Profile");
+        // calling class
+        // TODO do this dynamic for username
+        new GetProfileData(this, 1).execute("9646555234");
+
+        final Button button = (Button) findViewById(R.id.EditProfileButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                EditText nameEditText;
+                EditText emailEditText;
+                EditText addressEditText;
+                nameEditText = (EditText) findViewById(R.id.new_name);
+                final String newName = nameEditText.getText().toString();
+                emailEditText = (EditText) findViewById(R.id.new_email);
+                final String newEmail = emailEditText.getText().toString();
+                addressEditText = (EditText) findViewById(R.id.new_address);
+                final String newAddress = addressEditText.getText().toString();
+
+                // compare the values and then accordingly call the php
+                if (!(newEmail.matches(EMAILSTRING) && newName.matches(NAMESTRING) && newAddress.matches(ADDRESSSTRING)))
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(editProfile.this);
+                    builder.setMessage("Are you sure you want to update details?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id)
+                                {
+                                    new UpdateProfileData(editProfile.this, 2).execute("9646555234", newName, newEmail, newAddress);
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            }
+        });
+
+
         //Adding Back button
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Hook up clicks on the thumbnail views.
-
         final View thumb1View = findViewById(R.id.thumb_button);
         assert thumb1View != null;
         thumb1View.setOnClickListener(new View.OnClickListener() {
 
             @Override
-                public void onClick(View v) {
-                    //Creating the instance of PopupMenu
-                    PopupMenu popup = new PopupMenu(editProfile.this, thumb1View);
-                    //Inflating the Popup using xml file
-                    popup.getMenuInflater().inflate(R.menu.profile_picture, popup.getMenu());
+            public void onClick(View v) {
+                //Creating the instance of PopupMenu
+                PopupMenu popup = new PopupMenu(editProfile.this, thumb1View);
+                //Inflating the Popup using xml file
+                popup.getMenuInflater().inflate(R.menu.profile_picture, popup.getMenu());
 
-                    //registering popup with OnMenuItemClickListener
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        public boolean onMenuItemClick(MenuItem item)
-                        {
-                            if(item.getTitle().toString().matches("View Profile Picture"))
-                            {
-                                zoomImageFromThumb(thumb1View, R.drawable.pic);
-                            }
-                            if(item.getTitle().toString().matches("Change Profile Picture"))
-                            {
-                                Toast.makeText(editProfile.this,"You Clicked : " + item.getTitle(),Toast.LENGTH_SHORT).show();
-                            }
-                            if(item.getTitle().toString().matches("Remove Profile Picture"))
-                            {
-                                Toast.makeText(editProfile.this,"You Clicked : " + item.getTitle(),Toast.LENGTH_SHORT).show();
-                            }
-
-                            return true;
+                //registering popup with OnMenuItemClickListener
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getTitle().toString().matches("View Profile Picture")) {
+                            zoomImageFromThumb(thumb1View, R.drawable.pic);
                         }
-                    });
+                        //TODO correct this code
+                        if (item.getTitle().toString().matches("Change Profile Picture")) {
+                            Toast.makeText(editProfile.this, "You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        }
+                        if (item.getTitle().toString().matches("Remove Profile Picture")) {
+                            Toast.makeText(editProfile.this, "You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        return true;
+                    }
+                });
 
                 popup.show();//showing popup menu
                 mShortAnimationDuration = getResources().getInteger(
                         android.R.integer.config_shortAnimTime);
             }
 
-        });//closing the setOnClickListener method
+        });
     }
-
-//    zoomImageFromThumb(thumb1View, R.drawable.pic);
-//            }
-//        });
-
-        // Retrieve and cache the system's default "short" animation time.
-
-
-
-
-
-
-
-
-
-// On clicking back button going to home
+    // On clicking back button going to home
     //// TODO: 16-10-2016 change this to profile fragment 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -104,13 +144,10 @@ public class editProfile extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-
-
-
         }
     }
 
-
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void zoomImageFromThumb(final View thumbView, int imageResId) {
         // If there's an animation in progress, cancel it
         // immediately and proceed with this one.
@@ -206,6 +243,7 @@ public class editProfile extends AppCompatActivity {
         // the expanded image.
         final float startScaleFinal = startScale;
         expandedImageView.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             @Override
             public void onClick(View view) {
                 if (mCurrentAnimator != null) {
@@ -219,7 +257,7 @@ public class editProfile extends AppCompatActivity {
                         .ofFloat(expandedImageView, View.X, startBounds.left))
                         .with(ObjectAnimator
                                 .ofFloat(expandedImageView,
-                                        View.Y,startBounds.top))
+                                        View.Y, startBounds.top))
                         .with(ObjectAnimator
                                 .ofFloat(expandedImageView,
                                         View.SCALE_X, startScaleFinal))
@@ -248,4 +286,63 @@ public class editProfile extends AppCompatActivity {
             }
         });
     }
+
+
+    @Override
+    public void onCompletionSecond(String response) {
+
+        requestId = response;
+
+    }
+
+    @Override
+    public void onCompletion(String response) {
+
+        if (requestId == "1")
+        {
+            String profileData = response;
+            try {
+                populateUserData(profileData);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
+        if (requestId == "02")
+        {
+            String status = response;
+            if(status.matches("Successful"))
+            {
+                Log.v(LOG_TAG , status);
+                Toast.makeText(editProfile.this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(editProfile.this, HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+            else
+            {
+                Toast.makeText(editProfile.this, "Error , Try Again", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void populateUserData(String profileData) throws JSONException {
+        JSONObject object = new JSONObject(profileData);
+        NAMESTRING = object.getString(NAME);
+        EMAILSTRING = object.getString(EMAIL);
+        ADDRESSSTRING = object.getString(ADDRESS);
+        EditText nameEditText;
+        EditText emailEditText;
+        EditText addressEditText;
+        nameEditText = (EditText) findViewById(R.id.new_name);
+        nameEditText.setText(NAMESTRING);
+        emailEditText = (EditText) findViewById(R.id.new_email);
+        emailEditText.setText(EMAILSTRING);
+        addressEditText = (EditText) findViewById(R.id.new_address);
+        addressEditText.setText(ADDRESSSTRING);
+
+    }
+
+
+
 }

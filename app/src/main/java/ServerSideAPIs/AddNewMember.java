@@ -1,5 +1,6 @@
 package ServerSideAPIs;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -7,7 +8,6 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -23,9 +23,19 @@ import CommunicationInterface.Communication;
     {
         private static final String LOG_TAG = "REGISTER: ";
         private Context context;
+        private ProgressDialog dialog;
+
 
         public AddNewMember(Context context) {
             this.context = context;
+            dialog = new ProgressDialog(this.context);
+        }
+
+        protected void onPreExecute() {
+
+            this.dialog.setMessage("Get Set Go!");
+            this.dialog.setCancelable(false);
+            this.dialog.show();
         }
 
 
@@ -39,8 +49,6 @@ import CommunicationInterface.Communication;
 
             try{
 
-                String IP = String.valueOf(InetAddress.getLocalHost());
-                String SERVER = "http://"+IP+"/Click4Change/";
 
                 String username = params[0];
                 String password = params[1];
@@ -48,7 +56,8 @@ import CommunicationInterface.Communication;
                 String emailAddr = params[3];
                 String gender = params[4];
 
-                String link=SERVER+"addNewMember.php";
+                //String link=ServerConfig.SERVER+"addNewMember.php";
+                String link = "http://172.31.71.200/Click4Change/"+"addNewMember.php";
                 String data  = URLEncoder.encode("username", "UTF-8") + "=" + URLEncoder.encode(username, "UTF-8");
                 data += "&" + URLEncoder.encode("password", "UTF-8") + "=" + URLEncoder.encode(password, "UTF-8");
                 data += "&" + URLEncoder.encode("phone", "UTF-8") + "=" + URLEncoder.encode(phone, "UTF-8");

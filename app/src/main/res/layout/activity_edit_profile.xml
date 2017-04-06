@@ -25,7 +25,53 @@
             android:layout_height="wrap_content"
             android:visibility="invisible" />
 
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_layout_editname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/new_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Name"
+                android:inputType="text"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_layout_editemail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/new_email"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Email"
+                android:inputType="text"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_layout_editaddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/new_address"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Address"
+                android:inputType="text"/>
+        </android.support.design.widget.TextInputLayout>
+
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/EditProfileButton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Submit"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center" />
 
     <!-- This initially-hidden ImageView will hold the expanded/zoomed version of
      the images above. Without transformations applied, it takes up the entire

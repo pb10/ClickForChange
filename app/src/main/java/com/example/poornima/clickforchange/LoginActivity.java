@@ -2,12 +2,12 @@ package com.example.poornima.clickforchange;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -18,10 +18,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 
 import CommunicationInterface.Communication;
 import ServerSideAPIs.CheckLoginActivity;
+import ServerSideAPIs.FetchUserData;
 
 
 public class LoginActivity extends Activity implements Communication {
@@ -40,9 +44,16 @@ public class LoginActivity extends Activity implements Communication {
 
     public static File dataFolder;
 
+    public JSONObject userJson;
+
     public static final String USER_KEY = "user_key";
     public static final String PASS_KEY = "pass_key";
     public static final String LOGIN_STATUS = "login_status";
+    public static final String USER_NAME = "username";
+    public static final String USER_PROFILE_PIC = "profile_img";
+    public static final String USER_NUM_POSTS = "user_posts";
+
+    public static final String USER_REACTIONS = "user_reactions";
 
     public final int PERMISSIONS_REQUEST_WRITE_STORAGE = 0;
 
@@ -53,11 +64,12 @@ public class LoginActivity extends Activity implements Communication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        sharedCredentialPreferences = getSharedPreferences("Credentials", Context.MODE_PRIVATE);
+        sharedCredentialPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
             if(this.isLoggedIn())
             {
-                Intent intent = new Intent(this, HomeActivity.class).putExtra(Intent.EXTRA_TEXT,statusText);
+                new FetchUserData(this).execute(sharedCredentialPreferences.getString(USER_KEY,null));
+                Intent intent = new Intent(this, HomeActivity.class).putExtra(Intent.EXTRA_TEXT, statusText);
                 startActivity(intent);
                 finish();
             }
@@ -237,30 +249,59 @@ public class LoginActivity extends Activity implements Communication {
 
         Intent intent = new Intent(this,RegisterMember.class);
         startActivity(intent);
+        finish();
 
     }
 
     @Override
     public void onCompletion(String response) {
-        statusText = response;
-        checkUserPass();
+        String jsonResponse = response;
+        Log.e("USER TABLE",jsonResponse);
+        try {
+             userJson = new JSONObject(jsonResponse);
+            statusText = userJson.getString("status");
+            checkUserPass();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onCompletionSecond(String response)  {
+        String userReactions = response;
+        Log.e("reactions",userReactions);
+        SharedPreferences.Editor editor = sharedCredentialPreferences.edit();
+        editor.putString(USER_REACTIONS,userReactions);
+        editor.commit();
     }
 
 
-    public void checkUserPass()
-    {
+    public void checkUserPass() throws JSONException {
         Log.e(LOG_TAG, "returned: " + statusText);
 
         if(statusText.equals("Successful"))
         {
+            String name = userJson.getString("name");
+            String prof_img = userJson.getString("profile_img");
+            String notif_num = userJson.getString("prob_num");
             SharedPreferences.Editor editor = sharedCredentialPreferences.edit();
             editor.putString(USER_KEY, username);
             editor.putString(PASS_KEY, password);
             editor.putBoolean(LOGIN_STATUS, true);
+            editor.putString(USER_NAME, name);
+            editor.putString(USER_PROFILE_PIC,prof_img);
+            editor.putString(USER_NUM_POSTS,notif_num);
             editor.commit();
 
+            /*Gets all the ractions done by the current user*/
+
+            new FetchUserData(this).execute(sharedCredentialPreferences.getString(USER_KEY,null));
+
+            /*-------------------------------*/
+
             UserData.SESSION_USER = usernameField.getText().toString();
-            Intent intent = new Intent(this, HomeActivity.class).putExtra(Intent.EXTRA_TEXT,statusText);
+            Intent intent = new Intent(this, HomeActivity.class).putExtra(Intent.EXTRA_TEXT, statusText);
             startActivity(intent);
             finish();
             //Toast.makeText(this,"Correct!",Toast.LENGTH_SHORT).show();

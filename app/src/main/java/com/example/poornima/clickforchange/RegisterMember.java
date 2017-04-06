@@ -3,6 +3,7 @@ package com.example.poornima.clickforchange;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -71,6 +72,13 @@ public class RegisterMember extends ActionBarActivity implements Communication {
         }
     }
 
+    public void CallScreen(View view) {
+
+        Intent intent = new Intent(this,LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     public void RegisterMember(View view) {
 
         EditText nameField = (EditText)findViewById(R.id.user_name_textView);
@@ -106,21 +114,52 @@ public class RegisterMember extends ActionBarActivity implements Communication {
         AdditionStatusText = response;
 
         addMember();
+        finish();
+    }
+
+    @Override
+    public void onCompletionSecond(String response) {
 
     }
 
     public void addMember()
     {
+        Log.e("^^^^" , AdditionStatusText);
         if(AdditionStatusText.equals("Success"))
         {
-            Toast.makeText(this,"Registered successfully",Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, HomeActivity.class);
+
+            Toast.makeText(this,"Registered, Please Verify it :)",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, verifyOtp.class);
             startActivity(intent);
+
         }
 
         else
         {
-            Toast.makeText(this,"Please try again later",Toast.LENGTH_SHORT).show();
+            if(AdditionStatusText.equals("Number registered but not verfied"))
+            {
+
+                Toast.makeText(this,"Number not verified , please verify it",Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(this, verifyOtp.class);
+                startActivity(intent);
+            }
+            else
+            {
+                if(AdditionStatusText.equals("Already Registered"))
+                {
+                    Toast.makeText(this,"Already registered, Login to continue",Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    startActivity(intent);
+
+                }
+                else
+                {
+                    Toast.makeText(this,"Please try again later",Toast.LENGTH_SHORT).show();
+                }
+
+            }
         }
+
     }
 }

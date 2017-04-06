@@ -2,7 +2,9 @@ package com.example.poornima.clickforchange;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,7 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import Utils.ImageLoader;
 
 /**
  * Created by abhishek on 29-09-2016.
@@ -24,10 +29,26 @@ public class profileFragment extends Fragment {
     //@Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+
+        ImageLoader imageLoader = new ImageLoader(this.getContext());
+
+        String user_profile_name = preferences.getString("username",null);
+        String user_profile_img = preferences.getString("profile_img",null);
+        String user_posts = preferences.getString("user_posts",null);
+
         super.onCreate(savedInstanceState);
         View v = inflater.inflate(R.layout.profile, container, false);
+
+        ImageView profile_img = (ImageView)v.findViewById(R.id.user_profile_pic);
+        imageLoader.DisplayImage(user_profile_img,profile_img);
+
+        TextView profile_user_name = (TextView)v.findViewById(R.id.profile_name);
+        profile_user_name.setText(user_profile_name.toUpperCase());
+
         TextView noOfPosts = (TextView) v.findViewById(R.id.noOfPosts);
-        noOfPosts.setText("18");
+        noOfPosts.setText(user_posts+" POSTS");
 
         setHasOptionsMenu(true);
 

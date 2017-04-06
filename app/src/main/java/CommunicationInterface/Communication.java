@@ -7,4 +7,6 @@ public interface Communication {
 
     public void onCompletion(String response);
 
+    public void onCompletionSecond(String response);
+
 }
