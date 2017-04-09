@@ -51,19 +51,32 @@ public class ImageLoader {
     final int stub_id= R.drawable.logo;
     public void DisplayImage(String url, ImageView imageView)
     {
-        url = ServerConfig.SERVER+url;
-        imageViews.put(imageView, url);
-        Bitmap bitmap=memoryCache.get(url);
+        Bitmap bitmap;
+        char check = url.charAt(0);
+        if(check=='p') {
+            url = ServerConfig.SERVER + url;
+            imageViews.put(imageView, url);
+             bitmap = memoryCache.get(url);
+        }
+        else
+        {
+            bitmap = BitmapFactory.decodeFile(url);
+
+        }
+
         if(bitmap!=null)
         {
-            Bitmap bitmap_round_corners = getRoundedCornerBitmap(bitmap);
-            imageView.setImageBitmap(bitmap_round_corners);
+            /*Bitmap bitmap_round_corners = getRoundedCornerBitmap(bitmap);
+            imageView.setImageBitmap(bitmap_round_corners);*/
+
+            imageView.setImageBitmap(bitmap);
         }
         else
         {
             queuePhoto(url, imageView);
             imageView.setImageResource(stub_id);
         }
+
     }
 
     private void queuePhoto(String url, ImageView imageView)

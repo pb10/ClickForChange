@@ -7,11 +7,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -44,6 +46,8 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public  Intent detail_intent;
+    protected SharedPreferences posts_sharedPreferences;
+    public static final String POSTS_KEY = "problems_server_response";
 
     View v;
     ListView listView;
@@ -54,6 +58,8 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
 
     @Override
     public void onCreate(Bundle savedInstaceState) {
+
+        posts_sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         if (!isNetworkAvailable(this.getContext()))
         {
@@ -186,11 +192,17 @@ public class homeFragment extends Fragment implements Communication,SwipeRefresh
     @Override
     public void onCompletion(String response)  {
         try {
+            /*SharedPreferences.Editor editor = posts_sharedPreferences.edit();
+            editor.putString(POSTS_KEY,response);
+            editor.commit();*/
+
+            response = posts_sharedPreferences.getString(POSTS_KEY,null);
+
             problemArray = convertWallDataToJson(response);
             if(problemArray!=null)
             {
 
-                feed_adapter = new FeedAdapter(getActivity(), problemArray,detail_intent);
+                feed_adapter = new FeedAdapter(getActivity(), problemArray,detail_intent,0);
 
                 listView.setAdapter(feed_adapter);
 

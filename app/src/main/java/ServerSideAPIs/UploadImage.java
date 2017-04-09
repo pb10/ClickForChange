@@ -39,7 +39,7 @@ public class UploadImage extends AsyncTask<String,Void,String> {
 
     //String requestURL = ServerConfig.SERVER+"UploadToServer.php";
 
-    String requestURL = "http://172.31.71.200/Click4Change/"+"UploadToServer.php";
+    String requestURL = ServerConfig.SERVER+"UploadToServer.php";
 
 
 

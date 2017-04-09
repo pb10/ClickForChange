@@ -13,15 +13,6 @@
         android:title="Change Password"
         />
     <item
-        android:id="@+id/faqs"
-        android:title="FAQ's"
-        />
-
-    <item
-        android:id="@+id/termsOfService"
-        android:title="Terms of service"
-        />
-    <item
         android:id="@+id/logout"
         android:title="Logout"
         />

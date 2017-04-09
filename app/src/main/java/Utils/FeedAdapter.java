@@ -50,6 +50,8 @@ public class FeedAdapter extends BaseAdapter{
     final String PROFILE_PIC = "profile_img";
     final String USER_NAME = "username";
 
+    public static int callingFragment;
+
 
     protected SharedPreferences sharedCredentialPreferences;
 
@@ -64,7 +66,7 @@ public class FeedAdapter extends BaseAdapter{
     private static LayoutInflater inflater=null;
 
 
-    public FeedAdapter(Activity mainActivity, JSONArray prblmList,Intent intent) {
+    public FeedAdapter(Activity mainActivity, JSONArray prblmList,Intent intent, int callingActivity) {
 
         sharedCredentialPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity);
         user_reaction_str = sharedCredentialPreferences.getString(USER_REACTIONS, null);
@@ -82,6 +84,8 @@ public class FeedAdapter extends BaseAdapter{
         inflater = ( LayoutInflater )activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         imageLoader=new ImageLoader(activity.getApplicationContext());
+
+        callingFragment = callingActivity;
     }
 
     @Override
@@ -190,6 +194,7 @@ public class FeedAdapter extends BaseAdapter{
         final String finalProb_id = prob_id;
         final String finalUser_id = user_id;
         final int finalReactStatus = reactStatus;
+
         reactButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
 
@@ -236,7 +241,9 @@ public class FeedAdapter extends BaseAdapter{
 
 
         imageLoader.DisplayImage(path, problemPic);
+
         imageLoader.DisplayImage(profile_pic,profilePic);
+
 
         return rowView;
     }

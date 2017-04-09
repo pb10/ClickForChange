@@ -57,7 +57,7 @@ public class LoginActivity extends Activity implements Communication {
 
     public final int PERMISSIONS_REQUEST_WRITE_STORAGE = 0;
 
-    private int PERMISSIONS_REQUEST_READ_STORAGE;
+    private int PERMISSIONS_REQUEST_READ_STORAGE = 1;
 
     protected SharedPreferences sharedCredentialPreferences;
 
@@ -131,9 +131,9 @@ public class LoginActivity extends Activity implements Communication {
 
                     // No explanation needed, we can request the permission.
 
-                    /*ActivityCompat.requestPermissions(this,
+                    ActivityCompat.requestPermissions(this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            PERMISSIONS_REQUEST_READ_STORAGE);*/
+                            PERMISSIONS_REQUEST_READ_STORAGE);
 
                     // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                     // app-defined int constant. The callback method gets the

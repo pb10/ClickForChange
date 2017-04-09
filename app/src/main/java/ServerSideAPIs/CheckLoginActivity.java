@@ -98,6 +98,7 @@ public class CheckLoginActivity extends AsyncTask<String,Void,String> {
 
     @Override
     protected void onPostExecute(String result){
+        this.dialog.dismiss();
         Communication l =  (Communication)context;
         l.onCompletion(result);
     }

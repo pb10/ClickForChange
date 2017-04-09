@@ -21,6 +21,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,8 +36,18 @@ import java.io.ByteArrayOutputStream;
 import ServerSideAPIs.ServerConfig;
 import Utils.ImageLoader;
 
-public class NewsDetail extends ActionBarActivity {
+public class NewsDetail extends ActionBarActivity implements OnMapReadyCallback {
 
+
+    String feed_detail;
+
+    double latitude;
+    double longitude;
+
+    final String LATITUDE = "latitude";
+    final String LONGITUDE = "longitude";
+
+    private GoogleMap mMap;
 
 
     @Override
@@ -43,6 +60,28 @@ public class NewsDetail extends ActionBarActivity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        Intent intent = this.getIntent();
+
+        if(intent!=null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            feed_detail = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+
+        try {
+            JSONObject problemObject = new JSONObject(feed_detail);
+
+
+
+            latitude = problemObject.getDouble(LATITUDE);
+
+            longitude = problemObject.getDouble(LONGITUDE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map);
+         mapFragment.getMapAsync(this);
+
     }
 
 
@@ -69,6 +108,18 @@ public class NewsDetail extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        mMap = googleMap;
+        // Add a marker in Sydney and move the camera
+        LatLng prob_location = new LatLng(latitude, longitude);
+        mMap.addMarker(new MarkerOptions().position(prob_location).title("THE PROBLEM CAUSEd HERE"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(prob_location));
+
+    }
+
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -83,6 +134,14 @@ public class NewsDetail extends ActionBarActivity {
         final String LONGITUDE = "longitude";
         final String DATE_TIME = "date_time";
         final String NUM_REACTIONS = "num_reactions";
+
+
+        String user_id = null;
+
+        double latitude = 0;
+
+        double longitude = 0;
+
 
         String path;
 
@@ -117,11 +176,6 @@ public class NewsDetail extends ActionBarActivity {
 
                 path = null;
 
-                String user_id = null;
-
-                double latitude = 0;
-
-                double longitude = 0;
 
 
                 try {
@@ -146,6 +200,9 @@ public class NewsDetail extends ActionBarActivity {
 
                   imageLoader.DisplayImage(path, problemPic);
             }
+
+
+
 
             return rootView;
         }

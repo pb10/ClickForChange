@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,8 +14,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import Utils.FeedAdapter;
 import Utils.ImageLoader;
 
 /**
@@ -25,6 +32,14 @@ import Utils.ImageLoader;
 public class profileFragment extends Fragment {
 
     private Bundle savedState = null;
+    private ListView user_feed_listview;
+    private FeedAdapter user_posts_feed_adapter;
+    public static JSONArray userProblemsArray;
+    protected SharedPreferences sharedCredentialPreferences;
+    public static final String POSTS_KEY = "problems_server_response";
+    final String USER_ID = "user_id";
+    public static final String USER_KEY = "user_key";
+    String current_user;
 
     //@Nullable
     @Override
@@ -49,6 +64,53 @@ public class profileFragment extends Fragment {
 
         TextView noOfPosts = (TextView) v.findViewById(R.id.noOfPosts);
         noOfPosts.setText(user_posts+" POSTS");
+
+        sharedCredentialPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        String posts_string = sharedCredentialPreferences.getString(POSTS_KEY,null);
+         current_user = sharedCredentialPreferences.getString(USER_KEY,null);
+        userProblemsArray = new JSONArray();
+        String current_user_posts = "";
+        int count = 0;
+
+        try {
+            JSONArray allProbsArray = convertWallDataToJson(posts_string);
+
+            for(int i=0;i<allProbsArray.length();i++)
+            {
+                JSONObject problemObject = allProbsArray.getJSONObject(i);
+                String user_id = problemObject.getString(USER_ID);
+
+                if(user_id.equals(current_user))
+                {
+                    /*String prob = problemObject.toString();
+                    current_user_posts = current_user_posts+prob+'\n';
+                    count++;*/
+                    userProblemsArray.put(allProbsArray.get(i));
+                }
+            }
+
+            /*JSONObject userPosts = new JSONObject();
+            userPosts.put("PROBLEMS",current_user_posts);
+
+            Log.e("USER POSTS",current_user_posts);*/
+
+
+            //userProblemsArray = userPosts.getJSONArray("PROBLEMS");
+
+            Log.e("USER JSON",userProblemsArray.toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        user_feed_listview = (ListView) v.findViewById(R.id.listview_user_posts_feed);
+        if(userProblemsArray!=null) {
+
+            user_posts_feed_adapter = new FeedAdapter(getActivity(), userProblemsArray, null,1);
+
+            user_feed_listview.setAdapter(user_posts_feed_adapter);
+        }
 
         setHasOptionsMenu(true);
 
@@ -94,14 +156,6 @@ public class profileFragment extends Fragment {
                 Intent intent2 = new Intent(getContext(), changePassword.class);
                 startActivity(intent2);
                 return true;
-            case R.id.faqs:
-                Intent intent3 = new Intent(getContext(), faqs.class);
-                startActivity(intent3);
-                return true;
-            case R.id.termsOfService:
-                Intent intent4 = new Intent(getContext(), termsOfService.class);
-                startActivity(intent4);
-                return true;
             case R.id.logout:
                 Intent intent5 = new Intent(getContext(), logout.class);
                 startActivity(intent5);
@@ -110,5 +164,36 @@ public class profileFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private JSONArray convertWallDataToJson(String forecastJsonStr)
+            throws JSONException {
+
+
+        // These are the names of the JSON objects that need to be extracted.
+        final String PROB_LIST = "problems";
+        final String PROB_COUNT = "count";
+
+        JSONArray problemArray;
+
+
+        JSONObject problemsJson = new JSONObject(forecastJsonStr);
+        problemArray = problemsJson.getJSONArray(PROB_LIST);
+
+        int total_problems = problemsJson.getInt(PROB_COUNT);
+
+
+        String[] resultStrs = new String[total_problems];
+        for (int i = 0; i < total_problems; i++) {
+
+
+            // Get the JSON object representing the problem
+            JSONObject problemObject = problemArray.getJSONObject(i);
+            resultStrs[i] = problemObject.toString();
+        }
+
+
+        return problemArray;
+
     }
 }

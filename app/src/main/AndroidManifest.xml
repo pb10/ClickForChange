@@ -77,6 +77,12 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <!--Google MAP API key-->
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyC7EjsDRywQ5s91el9G1Stk4NMqxwKVoL4" />
+
         <activity
             android:name=".NewsDetail"
             android:label="@string/title_activity_news_detail" >

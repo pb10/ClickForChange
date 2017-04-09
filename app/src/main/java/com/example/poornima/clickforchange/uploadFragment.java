@@ -32,14 +32,14 @@ import static android.app.Activity.RESULT_OK;
  */
 public class uploadFragment extends Fragment
 {
-    private static Uri[] mUrls = null;
-    private static String[] strUrls = null;
-    private String[] mNames = null;
+    //private static Uri[] mUrls = null;
+    //private static String[] strUrls = null;
+    //private String[] mNames = null;
     private View view;
     private GridView gridView = null;
-    private int flag = 0;
-    private Cursor cc = null;
-    private int gallery_geo_tagged_count = 0;
+
+    //private Cursor cc = null;
+    //private int gallery_geo_tagged_count = 0;
     private ProgressDialog myProgressDialog = null;
 
     @Override
@@ -55,18 +55,20 @@ public class uploadFragment extends Fragment
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Intent cameraIntent = new Intent(getActivity(), CameraClick.class);
-                cameraIntent.putExtra("clickedImage",mUrls[position].getPath());
+                cameraIntent.putExtra("clickedImage",SplashScreen.mUrls[position].getPath());
                 float[] latLong = new float[2];
-                latLong[0] = 30;
-                latLong[1] = 30;
+
                 try {
-                    ExifInterface exif = new ExifInterface(mUrls[position].getPath());
+                    ExifInterface exif = new ExifInterface(SplashScreen.mUrls[position].getPath());
                     exif.getLatLong(latLong);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 cameraIntent.putExtra("latitude",latLong[0]);
                 cameraIntent.putExtra("longitude",latLong[1]);
+
+                Log.e("CHECK VAL", String.valueOf(cameraIntent.getFloatExtra("latitude",0)));
+
                 startActivity(cameraIntent);
             }
         });
@@ -80,7 +82,7 @@ public class uploadFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         // It have to be matched with the directory in SDCard
-        cc = this.getActivity().getContentResolver().query(
+        /*cc = this.getActivity().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null,
                 null);
 
@@ -123,7 +125,7 @@ public class uploadFragment extends Fragment
                 }
             }.start();
 
-        }
+        }*/
 
 
     }
@@ -141,8 +143,8 @@ public class uploadFragment extends Fragment
 
         public int getCount() {
             //if(flag==0)
-                return cc.getCount();
-            //return gallery_geo_tagged_count;
+                //return cc.getCount();
+            return SplashScreen.gallery_geo_tagged_count;
         }
 
         public Object getItem(int position) {
@@ -159,29 +161,29 @@ public class uploadFragment extends Fragment
             LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.gallery_grid_item, null);
 
-            try {
+            //try {
 
                 ImageView imageView = (ImageView) v.findViewById(R.id.grid_item_image);
                 //imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                 // imageView.setPadding(8, 8, 8, 8);
 
-                float[] latLong = new float[2];
+                /*float[] latLong = new float[2];
 
 
-                ExifInterface exif = new ExifInterface(mUrls[position].getPath());
+                ExifInterface exif = new ExifInterface(SplashScreen.mUrls[position].getPath());
                 if(exif.getLatLong(latLong))
                 //BitmapFactory.decodeFile(mUrls[position].getPath());
-                {
-                    Bitmap bmp = decodeURI(mUrls[position].getPath());
+                {*/
+                    Bitmap bmp = decodeURI(SplashScreen.mUrls[position].getPath());
                     imageView.setImageBitmap(bmp);
                     //TextView txtName = (TextView) v.findViewById(R.id.TextView01);
                     //txtName.setText(mNames[position]);
-                }
+                //}
                 //bmp.
 
-            } catch (Exception e) {
+            /*} catch (Exception e) {
 
-            }
+            }*/
             return v;
         }
     }
@@ -205,11 +207,11 @@ public class uploadFragment extends Fragment
      */
     public Bitmap decodeURI(String filePath){
 
-        Bitmap click_bmp = BitmapFactory.decodeFile(filePath);
+        /*Bitmap click_bmp = BitmapFactory.decodeFile(filePath);
 
-        Bitmap scaled = Bitmap.createScaledBitmap(click_bmp, 160, 160, true);
+        Bitmap scaled = Bitmap.createScaledBitmap(click_bmp, 100, 100, true);*/
 
-        /*BitmapFactory.Options options = new BitmapFactory.Options();
+        BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(filePath, options);
 
@@ -229,9 +231,10 @@ public class uploadFragment extends Fragment
         // Do the actual decoding
         options.inJustDecodeBounds = false;
         options.inTempStorage = new byte[512];
-        Bitmap output = BitmapFactory.decodeFile(filePath, options);*/
+        Bitmap output = BitmapFactory.decodeFile(filePath, options);
 
-        return scaled;
+        //return scaled;
+        return  output;
     }
 
 }
